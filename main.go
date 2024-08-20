@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log/slog"
 	"net/http"
 
 	"API.com/api-test/db"
@@ -16,22 +17,27 @@ func main(){
 	// GET quer dois argumentos: 1) O caminho para o qual a solicitação deve ser enviada
 	// 2) Handlers: Função que será executada se essa solicitação GET for enviada para /events
 	server.GET("/events", getEvents)
-	server.POST("events", createEvent)
+	server.POST("/events", createEvent)
 
 	server.Run(":8080")
 }
 
 func getEvents(context *gin.Context) {
-	events := models.GetAllEvents()
+	events, err := models.GetAllEvents()
+	if err != nil {
+		context.JSON(http.StatusInternalServerError, gin.H{"message":"Could not fetch events. Try again later."})
+		return
+	}
 	context.JSON(http.StatusOK, events)
 }
 
 func createEvent(context *gin.Context) {
 	var event models.Event
-	// Um ponteiro para a variável de evento é pasado para ShoulBindJSON 
+	// Um ponteiro para a variável de evento é passado para ShoulBindJSON 
 	// internamente o gin olha o body da solicitação de entrada e armazena os dados na variável event
 	err := context.ShouldBindJSON(&event)
 	if err != nil {
+		slog.Default().Info("got nice error", "error", err)
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not parse request data."})
 		return
 	}
@@ -39,6 +45,10 @@ func createEvent(context *gin.Context) {
 	event.ID = 1
 	event.UserID = 1
 
-	event.Save()
+	err = event.Save()
+	if err != nil {
+		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not create event. Try again later"})
+		return
+	}
 	context.JSON(http.StatusCreated, gin.H{"message": "Event created!", "event": event})
 }
