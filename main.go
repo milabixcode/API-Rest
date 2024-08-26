@@ -1,7 +1,7 @@
 package main
 
 import (
-	"API.com/api-test/db"
+	"API.com/db"
 	"API.com/routes"
 	"github.com/gin-gonic/gin"
 )
