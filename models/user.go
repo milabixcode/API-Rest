@@ -43,7 +43,7 @@ func (u User) Save() error {
 }
 
 // Valida se temos uma combinação válida de email e senha
-func (u User) ValidateCredentials() error {
+func (u *User) ValidateCredentials() error {
 	// É preciso buscar o usuário do email que obtivemos como parte da solicitação a partir do banco de dados
 	query := "SELECT id, password FROM users WHERE email = ?"
 	row := db.DB.QueryRow(query, u.Email)

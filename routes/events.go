@@ -45,10 +45,11 @@ func createEvent(context *gin.Context) {
 		return
 	}
 
-	event.ID = 1
-	event.UserID = 1
+	userID := context.GetInt64("userID")
+	event.UserID = userID
 
 	err = event.Save()
+
 	if err != nil {
 		context.JSON(http.StatusBadRequest, gin.H{"message": "Could not create event. Try again later"})
 		return
@@ -105,6 +106,6 @@ func deleteEvent(context *gin.Context) {
 		return
 	}
 
-	context.JSON(http.StatusOK, gin.H{"message":"Event deleted sucessfully!"})
+	context.JSON(http.StatusOK, gin.H{"message": "Event deleted sucessfully!"})
 
 }
